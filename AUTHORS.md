@@ -1,7 +1,11 @@
+Author:
+=======================
 Junwei Wang <wakemecn@gmail.com>
 Computer Science College of Shandong University
 http://github.com/wakemecn
 
+Thanks the following debuggers:
+=========================
 Julien Perrochet
 Communication Systems Student - EPFL - Switzerland
 https://github.com/Shastick
