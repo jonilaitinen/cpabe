@@ -2,7 +2,7 @@ Author:
 =======================
 Junwei Wang <wakemecn@gmail.com>  
 Computer Science College of Shandong University  
-http://github.com/wakemecn  
+http://github.com/junwei-wang  
 
 Thanks the following debuggers:
 =========================
