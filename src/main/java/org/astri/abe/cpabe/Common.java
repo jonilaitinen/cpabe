@@ -1,4 +1,5 @@
-package cpabe;
+package org.astri.abe.cpabe;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

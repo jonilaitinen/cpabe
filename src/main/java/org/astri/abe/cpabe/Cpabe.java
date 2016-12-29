@@ -1,18 +1,19 @@
-package cpabe;
-import it.unisa.dia.gas.jpbc.Element;
+package org.astri.abe.cpabe;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import cpabe.policy.LangPolicy;
-import bswabe.Bswabe;
-import bswabe.BswabeCph;
-import bswabe.BswabeCphKey;
-import bswabe.BswabeElementBoolean;
-import bswabe.BswabeMsk;
-import bswabe.BswabePrv;
-import bswabe.BswabePub;
-import bswabe.SerializeUtils;
+import org.astri.abe.bswabe.Bswabe;
+import org.astri.abe.bswabe.BswabeCph;
+import org.astri.abe.bswabe.BswabeCphKey;
+import org.astri.abe.bswabe.BswabeElementBoolean;
+import org.astri.abe.bswabe.BswabeMsk;
+import org.astri.abe.bswabe.BswabePrv;
+import org.astri.abe.bswabe.BswabePub;
+import org.astri.abe.bswabe.SerializeUtils;
+import org.astri.abe.cpabe.policy.LangPolicy;
+
+import it.unisa.dia.gas.jpbc.Element;
 
 public class Cpabe {
 

@@ -1,12 +1,12 @@
+package org.astri.abe;
 
-
-import bswabe.Bswabe;
-import bswabe.BswabeCph;
-import bswabe.BswabeCphKey;
-import bswabe.BswabeElementBoolean;
-import bswabe.BswabeMsk;
-import bswabe.BswabePrv;
-import bswabe.BswabePub;
+import org.astri.abe.bswabe.Bswabe;
+import org.astri.abe.bswabe.BswabeCph;
+import org.astri.abe.bswabe.BswabeCphKey;
+import org.astri.abe.bswabe.BswabeElementBoolean;
+import org.astri.abe.bswabe.BswabeMsk;
+import org.astri.abe.bswabe.BswabePrv;
+import org.astri.abe.bswabe.BswabePub;
 
 public class DemoForBswabe {
 	final static boolean DEBUG = true;

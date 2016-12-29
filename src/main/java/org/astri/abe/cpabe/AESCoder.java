@@ -1,4 +1,5 @@
-package cpabe;
+package org.astri.abe.cpabe;
+
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;

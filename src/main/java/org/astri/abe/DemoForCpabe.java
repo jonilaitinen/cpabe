@@ -1,4 +1,6 @@
-import cpabe.Cpabe;
+package org.astri.abe;
+
+import org.astri.abe.cpabe.Cpabe;
 
 public class DemoForCpabe {
 	final static boolean DEBUG = true;

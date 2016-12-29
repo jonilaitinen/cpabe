@@ -1,4 +1,4 @@
-package bswabe;
+package org.astri.abe.bswabe;
 
 import java.util.ArrayList;
 

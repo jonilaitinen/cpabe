@@ -1,4 +1,4 @@
-package cpabe.policy;
+package org.astri.abe.cpabe.policy;
 
 import java.util.ArrayList;
 import java.util.Collections;

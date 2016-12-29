@@ -1,4 +1,4 @@
-package bswabe;
+package org.astri.abe.bswabe;
 
 import it.unisa.dia.gas.jpbc.Element;
 import it.unisa.dia.gas.jpbc.Pairing;
