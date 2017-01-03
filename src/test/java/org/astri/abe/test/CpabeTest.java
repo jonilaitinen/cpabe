@@ -1,0 +1,88 @@
+package org.astri.abe.test;
+
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+
+import org.astri.abe.cpabe.Cpabe;
+import org.junit.Before;
+import org.junit.Test;
+
+public class CpabeTest {
+	
+	private Cpabe cpabe = null;
+	private String publicKeyFile = null;
+	private String masterKeyFile = null;
+	private String testFile = null;
+	
+	@Before
+	public void setup() throws ClassNotFoundException, IOException, NoSuchAlgorithmException {
+		
+		ClassLoader classLoader = getClass().getClassLoader();
+		publicKeyFile = classLoader.getResource("publickey").getPath();
+		masterKeyFile = classLoader.getResource("masterkey").getPath();
+		testFile = classLoader.getResource("test.txt").getPath();
+
+		System.out.println("pub: " + publicKeyFile + ", master: " + masterKeyFile);
+		
+		cpabe = new Cpabe();
+		cpabe.setup(publicKeyFile, masterKeyFile);
+		
+	}
+
+	
+	@Test
+	public void fileShouldBeEncryptedAndDecoded() throws Exception {
+		String attributes = "dept:CTO dept:CFO group:SNDS team:DATA";
+		String policy = "dept:CTO group:SNDS team:DATA 3of3 dept:CFO 1of2";
+		
+		File encrypted = encryptFile(policy);
+		assertTrue(decodeFile(attributes, encrypted));
+	}
+	
+	@Test
+	public void fileShouldNotBeDecoded() throws Exception {
+		String attributes = "group:SNDS team:DATA";
+		String policy = "dept:CTO group:SNDS team:DATA 3of3 dept:CFO 1of2";
+		
+		File encrypted = encryptFile(policy);
+		assertFalse(decodeFile(attributes, encrypted));
+	}
+	
+	@Test
+	public void fileShouldBeDecoded() throws Exception {
+		String attributes = "dept:CFO";
+		String policy = "dept:CTO group:SNDS team:DATA 3of3 dept:CFO 1of2";
+		
+		File encrypted = encryptFile(policy);
+		assertTrue(decodeFile(attributes, encrypted));
+	}
+	
+	private File encryptFile(String policy) throws Exception {
+		File encryptedFile = File.createTempFile("encrypted", "");
+		cpabe.enc(publicKeyFile, policy, testFile, encryptedFile.getAbsolutePath());
+		return encryptedFile;
+	}
+	
+	private boolean decodeFile(String attributes, File encryptedFile) throws Exception {
+		
+		File decodedFile = File.createTempFile("decoded", "");
+		System.out.println("decoded: " + decodedFile);
+		
+		File privateKeyfile = File.createTempFile("privatekey", "");
+		cpabe.keygen(publicKeyFile, privateKeyfile.getAbsolutePath(), masterKeyFile, attributes);
+		
+		boolean success = cpabe.dec(publicKeyFile, privateKeyfile.getAbsolutePath(),
+				encryptedFile.getAbsolutePath(), decodedFile.getAbsolutePath());
+		
+		Files.delete(privateKeyfile.toPath());
+		Files.delete(encryptedFile.toPath());
+		Files.delete(decodedFile.toPath());
+		
+		return success;
+	}
+	
+}
