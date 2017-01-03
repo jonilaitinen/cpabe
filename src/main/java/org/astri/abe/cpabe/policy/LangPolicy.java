@@ -16,12 +16,7 @@ public class LangPolicy {
 
 		while (st.hasMoreTokens()) {
 			token = st.nextToken();
-			if (token.contains(":")) {
-				str_arr.add(token);
-			} else {
-				System.out.println("Some error happens in the input attribute");
-				System.exit(0);
-			}
+			str_arr.add(token);
 		}
 
 		Collections.sort(str_arr, new SortByAlphabetic());
