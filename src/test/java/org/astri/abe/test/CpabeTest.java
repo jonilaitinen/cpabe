@@ -26,7 +26,7 @@ public class CpabeTest {
 		masterKeyFile = classLoader.getResource("masterkey").getPath();
 		testFile = classLoader.getResource("test.txt").getPath();
 
-		System.out.println("pub: " + publicKeyFile + ", master: " + masterKeyFile);
+		//System.out.println("pub: " + publicKeyFile + ", master: " + masterKeyFile);
 		
 		cpabe = new Cpabe();
 		cpabe.setup(publicKeyFile, masterKeyFile);
@@ -36,7 +36,7 @@ public class CpabeTest {
 	
 	@Test
 	public void fileShouldBeEncryptedAndDecoded() throws Exception {
-		String attributes = "dept:CTO dept:CFO group:SNDS team:DATA";
+		String[] attributes = {"dept:CTO", "dept:CFO", "group:SNDS", "team:DATA"};
 		String policy = "dept:CTO group:SNDS team:DATA 3of3 dept:CFO 1of2";
 		
 		File encrypted = encryptFile(policy);
@@ -45,7 +45,7 @@ public class CpabeTest {
 	
 	@Test
 	public void fileShouldNotBeDecoded() throws Exception {
-		String attributes = "group:SNDS team:DATA";
+		String[] attributes = {"group:SNDS", "team:DATA"};
 		String policy = "dept:CTO group:SNDS team:DATA 3of3 dept:CFO 1of2";
 		
 		File encrypted = encryptFile(policy);
@@ -54,11 +54,41 @@ public class CpabeTest {
 	
 	@Test
 	public void fileShouldBeDecoded() throws Exception {
-		String attributes = "dept:CFO";
+		String[] attributes = {"dept:CFO"};
 		String policy = "dept:CTO group:SNDS team:DATA 3of3 dept:CFO 1of2";
 		
 		File encrypted = encryptFile(policy);
 		assertTrue(decodeFile(attributes, encrypted));
+	}
+	
+	@Test
+	public void testGroupWithIndividualUsersShare() throws Exception {
+		// share to intersection of G1 and G2, and also to users A and B
+		String[] attributes = {"user:B"};
+		String policy = "group:G1 group:G2 2of2 user:A user:B 1of2 1of2";
+		
+		File encrypted = encryptFile(policy);
+		assertTrue(decodeFile(attributes, encrypted));
+	}
+	
+	@Test
+	public void testGroupWithIndividualUsersShareWithSingleGroup() throws Exception {
+		// share to intersection of G1 and G2, and also to users A and B
+		String[] attributes = {"group:G2", "user:C"};
+		String policy = "group:G1 group:G2 2of2 user:A user:B 1of2 1of2";
+		
+		File encrypted = encryptFile(policy);
+		assertFalse(decodeFile(attributes, encrypted));
+	}
+	
+	@Test
+	public void testShareWithPartialGroupMatchAndUser() throws Exception {
+		// share to intersection of G1 and G2, and also to users A and B
+		String[] attributes = {"group:G2", "user:A"};
+		String policy = "group:G1 group:G2 2of2 user:A user:B 1of2 2of2";
+		
+		File encrypted = encryptFile(policy);
+		assertFalse(decodeFile(attributes, encrypted));
 	}
 	
 	private File encryptFile(String policy) throws Exception {
@@ -67,7 +97,7 @@ public class CpabeTest {
 		return encryptedFile;
 	}
 	
-	private boolean decodeFile(String attributes, File encryptedFile) throws Exception {
+	private boolean decodeFile(String[] attributes, File encryptedFile) throws Exception {
 		
 		File decodedFile = File.createTempFile("decoded", "");
 		System.out.println("decoded: " + decodedFile);

@@ -422,7 +422,7 @@ public class DemoForCpabe {
 		println("//end to setup");
 
 		println("//start to keygen");
-		test.keygen(pubfile, prvfile, mskfile, attr_str);
+		//test.keygen(pubfile, prvfile, mskfile, attr_str);
 		println("//end to keygen");
 
 		println("//start to enc");

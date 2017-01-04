@@ -39,7 +39,7 @@ public class Cpabe {
 	}
 
 	public void keygen(String pubfile, String prvfile, String mskfile,
-			String attr_str) throws NoSuchAlgorithmException, IOException {
+			String[] attributeArray) throws NoSuchAlgorithmException, IOException {
 		BswabePub pub;
 		BswabeMsk msk;
 		byte[] pub_byte, msk_byte, prv_byte;
@@ -52,8 +52,7 @@ public class Cpabe {
 		msk_byte = Common.suckFile(mskfile);
 		msk = SerializeUtils.unserializeBswabeMsk(pub, msk_byte);
 
-		String[] attr_arr = LangPolicy.parseAttribute(attr_str);
-		BswabePrv prv = Bswabe.keygen(pub, msk, attr_arr);
+		BswabePrv prv = Bswabe.keygen(pub, msk, attributeArray);
 
 		/* store BswabePrv into prvfile */
 		prv_byte = SerializeUtils.serializeBswabePrv(prv);
