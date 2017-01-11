@@ -11,7 +11,6 @@ import org.astri.abe.bswabe.BswabeMsk;
 import org.astri.abe.bswabe.BswabePrv;
 import org.astri.abe.bswabe.BswabePub;
 import org.astri.abe.bswabe.SerializeUtils;
-import org.astri.abe.cpabe.policy.LangPolicy;
 
 import it.unisa.dia.gas.jpbc.Element;
 
