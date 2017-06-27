@@ -1,5 +1,7 @@
 package org.astri.abe.cpabe;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -11,11 +13,15 @@ import org.astri.abe.bswabe.BswabeMsk;
 import org.astri.abe.bswabe.BswabePrv;
 import org.astri.abe.bswabe.BswabePub;
 import org.astri.abe.bswabe.SerializeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import it.unisa.dia.gas.jpbc.Element;
 
 public class Cpabe {
 
+	private static final Logger LOG = LoggerFactory.getLogger(Cpabe.class);
+	
 	/**
 	 * @param args
 	 * @author Junwei Wang(wakemecn@gmail.com)
@@ -94,38 +100,88 @@ public class Cpabe {
 
 	public boolean dec(String pubfile, String prvfile, String encfile,
 			String decfile) throws Exception {
-		byte[] aesBuf, cphBuf;
-		byte[] plt;
-		byte[] prv_byte;
-		byte[] pub_byte;
-		byte[][] tmp;
-		BswabeCph cph;
-		BswabePrv prv;
-		BswabePub pub;
 
 		/* get BswabePub from pubfile */
-		pub_byte = Common.suckFile(pubfile);
-		pub = SerializeUtils.unserializeBswabePub(pub_byte);
+		byte[] pub_byte = Common.suckFile(pubfile);
+		BswabePub pub = SerializeUtils.unserializeBswabePub(pub_byte);
 
 		/* read ciphertext */
-		tmp = Common.readCpabeFile(encfile);
-		aesBuf = tmp[0];
-		cphBuf = tmp[1];
-		cph = SerializeUtils.bswabeCphUnserialize(pub, cphBuf);
+		byte[][] tmp = Common.readCpabeFile(encfile);
+		byte[] aesBuf = tmp[0];
+		byte[] cphBuf = tmp[1];
+		BswabeCph cph = SerializeUtils.bswabeCphUnserialize(pub, cphBuf);
 
 		/* get BswabePrv form prvfile */
-		prv_byte = Common.suckFile(prvfile);
-		prv = SerializeUtils.unserializeBswabePrv(pub, prv_byte);
+		byte[] prv_byte = Common.suckFile(prvfile);
+		BswabePrv prv = SerializeUtils.unserializeBswabePrv(pub, prv_byte);
 
 		BswabeElementBoolean beb = Bswabe.dec(pub, prv, cph);
-		// System.err.println("e = " + beb.e.toString());
+
 		if (beb.b) {
-			plt = AESCoder.decrypt(beb.e.toBytes(), aesBuf);
+			byte[] plt = AESCoder.decrypt(beb.e.toBytes(), aesBuf);
 			Common.spitFile(decfile, plt);
 			return true;
 		} else {
 			return false;
 		}
 	}
+	
+	public void encStream(String pubfile, String policy, String inputfile,
+			String encfile) throws Exception {
 
+		// get BswabePub from pubfile
+		byte[] pub_byte = Common.suckFile(pubfile);
+		BswabePub pub = SerializeUtils.unserializeBswabePub(pub_byte);
+
+		BswabeCphKey keyCph = Bswabe.enc(pub, policy);
+		BswabeCph cph = keyCph.cph;
+		Element seed = keyCph.key;
+
+		if (cph == null) {
+			LOG.error("Error happenedd in enc");
+			throw new Exception("Error in encryption");
+		}
+
+		byte[] cphBuf = SerializeUtils.bswabeCphSerialize(cph);
+		
+		// or use RandomAccessFile ?
+		FileInputStream fis = new FileInputStream(inputfile);
+		FileOutputStream fos = new FileOutputStream(encfile);
+		
+		Common.writeCpabeHeader(fos, cphBuf);
+		AESCoder.encryptStream(seed.toBytes(), fis, fos);
+		fos.close();
+	}
+	
+	public boolean decStream(String pubfile, String prvfile, String encfile,
+			String decfile) throws Exception {
+
+		// get BswabePub from pubfile
+		byte[] pub_byte = Common.suckFile(pubfile);
+		BswabePub pub = SerializeUtils.unserializeBswabePub(pub_byte);
+
+		FileInputStream fis = new FileInputStream(encfile);
+		
+		// read ciphertext
+		byte[] cphBuf = Common.readCpabeHeader(fis);
+
+		BswabeCph cph = SerializeUtils.bswabeCphUnserialize(pub, cphBuf);
+
+		// get BswabePrv form prvfile
+		byte[] prv_byte = Common.suckFile(prvfile);
+		BswabePrv prv = SerializeUtils.unserializeBswabePrv(pub, prv_byte);
+
+		BswabeElementBoolean beb = Bswabe.dec(pub, prv, cph);
+
+		if (beb.b) {
+			FileOutputStream outStream = new FileOutputStream(decfile);
+			AESCoder.decryptStream(beb.e.toBytes(), fis, outStream);
+			fis.close();
+			return true;
+		} else {
+			fis.close();
+			return false;
+		}
+	}
+	
 }

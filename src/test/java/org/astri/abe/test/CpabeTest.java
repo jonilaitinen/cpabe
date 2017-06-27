@@ -33,7 +33,6 @@ public class CpabeTest {
 		
 	}
 
-	
 	@Test
 	public void fileShouldBeEncryptedAndDecoded() throws Exception {
 		String[] attributes = {"dept:CTO", "dept:CFO", "group:SNDS", "team:DATA"};
@@ -43,6 +42,17 @@ public class CpabeTest {
 		assertTrue(decodeFile(attributes, encrypted));
 	}
 	
+	
+	@Test
+	public void fileStreamShouldBeEncryptedAndDecoded() throws Exception {
+		String[] attributes = {"dept:CTO", "dept:CFO", "group:SNDS", "team:DATA"};
+		String policy = "dept:CTO group:SNDS team:DATA 3of3 dept:CFO 1of2";
+		
+		File encrypted = encryptStream(policy);
+		assertTrue(decodeStream(attributes, encrypted));
+	}
+	
+
 	@Test
 	public void fileShouldNotBeDecoded() throws Exception {
 		String[] attributes = {"group:SNDS", "team:DATA"};
@@ -90,7 +100,7 @@ public class CpabeTest {
 		File encrypted = encryptFile(policy);
 		assertFalse(decodeFile(attributes, encrypted));
 	}
-	
+
 	private File encryptFile(String policy) throws Exception {
 		File encryptedFile = File.createTempFile("encrypted", "");
 		cpabe.enc(publicKeyFile, policy, testFile, encryptedFile.getAbsolutePath());
@@ -100,12 +110,35 @@ public class CpabeTest {
 	private boolean decodeFile(String[] attributes, File encryptedFile) throws Exception {
 		
 		File decodedFile = File.createTempFile("decoded", "");
-		System.out.println("decoded: " + decodedFile);
+		System.out.println("decoded file: " + decodedFile);
 		
 		File privateKeyfile = File.createTempFile("privatekey", "");
 		cpabe.keygen(publicKeyFile, privateKeyfile.getAbsolutePath(), masterKeyFile, attributes);
 		
 		boolean success = cpabe.dec(publicKeyFile, privateKeyfile.getAbsolutePath(),
+				encryptedFile.getAbsolutePath(), decodedFile.getAbsolutePath());
+		
+		Files.delete(privateKeyfile.toPath());
+		Files.delete(encryptedFile.toPath());
+		Files.delete(decodedFile.toPath());
+		
+		return success;
+	}
+	
+	private File encryptStream(String policy) throws Exception {
+		File encryptedFile = File.createTempFile("encrypted", "");
+		cpabe.encStream(publicKeyFile, policy, testFile, encryptedFile.getAbsolutePath());
+		return encryptedFile;
+	}
+	
+	private boolean decodeStream(String[] attributes, File encryptedFile) throws Exception {
+		File decodedFile = File.createTempFile("decoded", "");
+		System.out.println("decoded stream: " + decodedFile);
+		
+		File privateKeyfile = File.createTempFile("privatekey", "");
+		cpabe.keygen(publicKeyFile, privateKeyfile.getAbsolutePath(), masterKeyFile, attributes);
+		
+		boolean success = cpabe.decStream(publicKeyFile, privateKeyfile.getAbsolutePath(),
 				encryptedFile.getAbsolutePath(), decodedFile.getAbsolutePath());
 		
 		Files.delete(privateKeyfile.toPath());
