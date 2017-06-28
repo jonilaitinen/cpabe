@@ -16,7 +16,7 @@ public class AESCoder {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AESCoder.class);
 	
-	private static final int BLOCK_BYTES = 1024 * 5;
+	private static final int BLOCK_BYTES = 1024 * 1024;
 	
 	private static byte[] getRawKey(byte[] seed) throws Exception {
 		KeyGenerator kgen = KeyGenerator.getInstance("AES");
