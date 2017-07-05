@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
+import org.astri.abe.cpabe.Common;
 import org.astri.abe.cpabe.Cpabe;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +30,6 @@ public class CpabeTest {
 		//System.out.println("pub: " + publicKeyFile + ", master: " + masterKeyFile);
 		
 		cpabe = new Cpabe();
-		cpabe.setup(publicKeyFile, masterKeyFile);
 		
 	}
 
@@ -101,6 +101,32 @@ public class CpabeTest {
 		assertFalse(decodeFile(attributes, encrypted));
 	}
 
+	@Test
+	public void generateKeyTest() throws Exception {
+		
+		File tempPub = File.createTempFile("pub", "temp");
+		File tempMaster = File.createTempFile("master", "temp");
+		
+		cpabe.setup(tempPub.getAbsolutePath(), tempMaster.getAbsolutePath());
+		
+		byte[] publicKey = Common.suckFile(tempPub.getAbsolutePath());
+		byte[] masterKey = Common.suckFile(tempMaster.getAbsolutePath());
+		
+		String[] attributeArray = {"group:G1", "user:A"};
+		
+		byte[] key = cpabe.keygen(publicKey, masterKey, attributeArray);
+		
+		StringBuffer sb = new StringBuffer();
+		for(byte b : key) {
+			sb.append(b);
+			sb.append(", ");
+		}
+		System.out.println("Generated key: " + sb.toString());
+		
+		tempPub.delete();
+		tempMaster.delete();
+	}
+	
 	private File encryptFile(String policy) throws Exception {
 		File encryptedFile = File.createTempFile("encrypted", "");
 		cpabe.enc(publicKeyFile, policy, testFile, encryptedFile.getAbsolutePath());
@@ -127,7 +153,8 @@ public class CpabeTest {
 	
 	private File encryptStream(String policy) throws Exception {
 		File encryptedFile = File.createTempFile("encrypted", "");
-		cpabe.encStream(publicKeyFile, policy, testFile, encryptedFile.getAbsolutePath());
+		byte[] pubKey = Common.suckFile(publicKeyFile);
+		cpabe.encStream(pubKey, policy, testFile, encryptedFile.getAbsolutePath());
 		return encryptedFile;
 	}
 	
@@ -138,7 +165,10 @@ public class CpabeTest {
 		File privateKeyfile = File.createTempFile("privatekey", "");
 		cpabe.keygen(publicKeyFile, privateKeyfile.getAbsolutePath(), masterKeyFile, attributes);
 		
-		boolean success = cpabe.decStream(publicKeyFile, privateKeyfile.getAbsolutePath(),
+		byte[] pubKey = Common.suckFile(publicKeyFile);
+		byte[] privKey = Common.suckFile(privateKeyfile.getAbsolutePath());
+		
+		boolean success = cpabe.decStream(pubKey, privKey,
 				encryptedFile.getAbsolutePath(), decodedFile.getAbsolutePath());
 		
 		Files.delete(privateKeyfile.toPath());

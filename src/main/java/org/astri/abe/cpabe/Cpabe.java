@@ -63,6 +63,16 @@ public class Cpabe {
 		prv_byte = SerializeUtils.serializeBswabePrv(prv);
 		Common.spitFile(prvfile, prv_byte);
 	}
+	
+	public byte[] keygen(byte[] publicKey, byte[] masterKey,
+			String[] attributeArray) throws NoSuchAlgorithmException, IOException {
+
+		BswabePub pub = SerializeUtils.unserializeBswabePub(publicKey);
+		BswabeMsk msk = SerializeUtils.unserializeBswabeMsk(pub, masterKey);
+		BswabePrv prv = Bswabe.keygen(pub, msk, attributeArray);
+
+		return SerializeUtils.serializeBswabePrv(prv);
+	}
 
 	public void enc(String pubfile, String policy, String inputfile,
 			String encfile) throws Exception {
@@ -126,12 +136,10 @@ public class Cpabe {
 		}
 	}
 	
-	public void encStream(String pubfile, String policy, String inputfile,
+	public void encStream(byte[] pubKey, String policy, String inputfile,
 			String encfile) throws Exception {
 
-		// get BswabePub from pubfile
-		byte[] pub_byte = Common.suckFile(pubfile);
-		BswabePub pub = SerializeUtils.unserializeBswabePub(pub_byte);
+		BswabePub pub = SerializeUtils.unserializeBswabePub(pubKey);
 
 		BswabeCphKey keyCph = Bswabe.enc(pub, policy);
 		BswabeCph cph = keyCph.cph;
@@ -153,12 +161,10 @@ public class Cpabe {
 		fos.close();
 	}
 	
-	public boolean decStream(String pubfile, String prvfile, String encfile,
+	public boolean decStream(byte[] pubKey, byte[] privateKey, String encfile,
 			String decfile) throws Exception {
 
-		// get BswabePub from pubfile
-		byte[] pub_byte = Common.suckFile(pubfile);
-		BswabePub pub = SerializeUtils.unserializeBswabePub(pub_byte);
+		BswabePub pub = SerializeUtils.unserializeBswabePub(pubKey);
 
 		FileInputStream fis = new FileInputStream(encfile);
 		
@@ -167,9 +173,7 @@ public class Cpabe {
 
 		BswabeCph cph = SerializeUtils.bswabeCphUnserialize(pub, cphBuf);
 
-		// get BswabePrv form prvfile
-		byte[] prv_byte = Common.suckFile(prvfile);
-		BswabePrv prv = SerializeUtils.unserializeBswabePrv(pub, prv_byte);
+		BswabePrv prv = SerializeUtils.unserializeBswabePrv(pub, privateKey);
 
 		BswabeElementBoolean beb = Bswabe.dec(pub, prv, cph);
 

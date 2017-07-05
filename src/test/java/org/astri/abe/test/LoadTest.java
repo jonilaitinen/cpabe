@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
+import org.astri.abe.cpabe.Common;
 import org.astri.abe.cpabe.Cpabe;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +46,8 @@ public class LoadTest {
 	
 	private File encryptStream(String policy) throws Exception {
 		File encryptedFile = new File("/Volumes/BICI/test/1gb_out.bin");
-		cpabe.encStream(publicKeyFile, policy, testFile, encryptedFile.getAbsolutePath());
+		byte[] pubKey = Common.suckFile(publicKeyFile);
+		cpabe.encStream(pubKey, policy, testFile, encryptedFile.getAbsolutePath());
 		return encryptedFile;
 	}
 	
